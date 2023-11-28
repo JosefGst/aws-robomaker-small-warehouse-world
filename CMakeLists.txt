@@ -14,7 +14,7 @@ find_package(gazebo_ros REQUIRED)
 # Install
 ################################################################################
 install(
-  DIRECTORY launch models worlds maps rviz
+  DIRECTORY launch models worlds maps rviz config
   DESTINATION share/${PROJECT_NAME}
 )
 

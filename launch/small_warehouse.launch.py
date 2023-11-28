@@ -50,18 +50,28 @@ def generate_launch_description():
         'world',
         default_value=os.path.join(aws_small_warehouse_dir, 'worlds', 'small_warehouse', 'small_warehouse.world'),
         description='Full path to world model file to load')
+    
+    gazebo_params_path = DeclareLaunchArgument('gazebo_params_file',
+            default_value=os.path.join(aws_small_warehouse_dir, 'config', 'gazebo_params.yaml'),
+            description='Full path to the gazebo parameters file increase pub rate')
 
     # Specify the actions
-    start_gazebo_server_cmd = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros, 'launch', 'gzserver.launch.py'))
-    )
+    # start_gazebo_server_cmd = launch.actions.IncludeLaunchDescription(
+    #     launch.launch_description_sources.PythonLaunchDescriptionSource(
+    #         os.path.join(gazebo_ros, 'launch', 'gzserver.launch.py'))
+    # )
 
-    start_gazebo_client_cmd = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros, 'launch', 'gzclient.launch.py')),
-        condition=IfCondition(PythonExpression(['not ', headless]))
-    )
+    # start_gazebo_client_cmd = launch.actions.IncludeLaunchDescription(
+    #     launch.launch_description_sources.PythonLaunchDescriptionSource(
+    #         os.path.join(gazebo_ros, 'launch', 'gzclient.launch.py')),
+    #     condition=IfCondition(PythonExpression(['not ', headless]))
+    # )
+
+    gazebo = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([os.path.join(
+                get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
+                launch_arguments={'params_file': LaunchConfiguration('gazebo_params_file') }.items()
+         )
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -72,7 +82,9 @@ def generate_launch_description():
     ld.add_action(declare_world_cmd)
 
     # Add any conditioned actions
-    ld.add_action(start_gazebo_server_cmd)
-    ld.add_action(start_gazebo_client_cmd)
+    # ld.add_action(start_gazebo_server_cmd)
+    # ld.add_action(start_gazebo_client_cmd)
+    ld.add_action(gazebo_params_path)
+    ld.add_action(gazebo)
 
     return ld
